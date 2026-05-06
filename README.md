@@ -2,83 +2,91 @@
 
 Reusable skills for AI coding agents. **One source, four targets.**
 
-## Compatibility
+## Compatibility (Verified Against Official Docs)
 
-| Tool | Format | Install Location | Auto-detected? |
-|------|--------|-----------------|----------------|
-| **Hermes Agent** | SKILL.md + YAML frontmatter | `~/.hermes/skills/<name>/` | ✅ |
-| **Claude Code** | SKILL.md + YAML frontmatter | `~/.claude/skills/<name>/` | ✅ |
-| **Cursor** | .mdc (Markdown Cursor) | `.cursor/rules/<name>.mdc` | ✅ (if `.cursor/` exists) |
-| **Codex** | AGENTS.md reference | Appended to project `AGENTS.md` | ✅ (if `AGENTS.md` exists) |
+| Tool | File Format | Location | How It Loads |
+|------|-----------|----------|-------------|
+| **Hermes Agent** | SKILL.md + YAML frontmatter | `~/.hermes/skills/<name>/` | On-demand via skill system |
+| **Claude Code** | SKILL.md + YAML frontmatter | `~/.claude/skills/<name>/` | On-demand via `/skill-name` or auto |
+| **Cursor** | `.md` + YAML frontmatter | `.cursor/rules/<name>.md` | `alwaysApply` / `globs` / `description` |
+| **Codex** | AGENTS.md (plain markdown) | Project root `AGENTS.md` | Always loaded, concatenated |
+
+**Hermes Agent and Claude Code use identical SKILL.md format.** Cursor needs frontmatter conversion. Codex uses a flat markdown file.
+
+### Format Differences
+
+**SKILL.md (Hermes / Claude Code):**
+```yaml
+---
+name: my-skill
+description: "What this skill does"
+when_to_use: "trigger phrase 1, trigger phrase 2"
+---
+# Content here
+```
+
+**Cursor rules (`.cursor/rules/<name>.md`):**
+```yaml
+---
+description: "When to apply this rule (agent reads this)"
+alwaysApply: false
+---
+# Content here
+```
+
+**Codex (`AGENTS.md`):**
+```markdown
+## Skill: my-skill
+> What this skill does
+Load: `cat skills/my-skill/SKILL.md`
+```
 
 ## Quick Install
 
 ```bash
-# Clone
 git clone https://github.com/luow1028/my-skills.git
 cd my-skills
 
 # Install all skills (auto-detects your tools)
 ./install.sh
 
-# Or install a specific skill
+# Or install specific skills
 ./install.sh made-to-stick
 ```
-
-The installer auto-detects which tools you have configured and installs to the right locations.
 
 ## Available Skills
 
 ### 📚 made-to-stick
 
-Turn ideas into sticky messages using the SUCCESs framework (Chip Heath, *Made to Stick*).
+Craft memorable messages using the SUCCESs framework (Chip Heath, *Made to Stick*).
 
-**Includes AI-TECH v4.0 extension** — 5-dimension consistency check specifically designed for AI inference/optimization tech blogs:
-- Speed vs. Accuracy Loop (critical for quantization claims)
-- Hardware-Software Loop
-- Claim vs. Evidence transparency
-- Narrative Loop (Gap Theory)
-- Goal vs. Content alignment
+**Includes AI-TECH v4.0 extension** for AI inference/optimization tech blogs:
+- 5-dimension consistency check (Speed vs. Accuracy Loop, etc.)
+- AI-specific SUCCESs customizations
+- Review output format: Scorecard + Idea Clinic + Strategic Directives
 
-**Trigger phrases:** "sticky ideas", "persuasive communication", "tech blog review", "SUCCESs framework", "curse of knowledge"
+## Adding Skills
 
-**Files:**
-- `SKILL.md` — Core SUCCESs + AI-TECH v4.0 framework
-- `chapters/` — 8 chapter summaries (on-demand loading)
-- `glossary.md` — All key terms
-- `patterns.md` — Techniques + anti-patterns
-- `cheatsheet.md` — Decision rules and quick reference
-
-## Adding Your Own Skills
-
-1. Create `skills/<your-skill-name>/SKILL.md` with YAML frontmatter:
+1. Create `skills/<name>/SKILL.md` with YAML frontmatter:
 
 ```yaml
 ---
-name: your-skill-name
+name: your-skill
 description: "What this skill does"
-when_to_use: "trigger phrase 1, trigger phrase 2, trigger phrase 3"
+when_to_use: "trigger 1, trigger 2"
 ---
-
-# Your Skill Title
-
-Content here...
+# Content
 ```
 
-2. Add supporting files (chapters/, glossary.md, etc.) — optional
+2. Add optional supporting files (chapters/, glossary.md, etc.)
 3. `git add . && git commit -m "Add skill" && git push`
 
-The install script handles format conversion automatically.
+## Sources
 
-## How It Works
-
-The `install.sh` script:
-1. Scans `skills/` for all skill directories
-2. Detects which AI tools you have configured
-3. Copies SKILL.md to Hermes/Claude Code (native format)
-4. Converts to `.mdc` for Cursor (with frontmatter mapping)
-5. Appends reference to `AGENTS.md` for Codex
-6. Appends reference to `CLAUDE.md` for Claude Code project-level
+- [Claude Code Skills](https://code.claude.com/docs/en/skills)
+- [Claude Code Memory](https://docs.anthropic.com/en/docs/claude-code/memory)
+- [Cursor Rules](https://docs.cursor.com/context/rules)
+- [Codex AGENTS.md](https://developers.openai.com/codex/guides/agents-md)
 
 ## License
 
